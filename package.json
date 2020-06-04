@@ -1,0 +1,31 @@
+{
+  "name": "ty",
+  "version": "1.0.0",
+  "description": "TYList",
+  "main": "none",
+  "scripts": {
+    "dev": "egg-bin dev",
+    "start": "egg-scripts start",
+    "stop": "egg-scripts stop",
+    "debug": "egg-bin debug --inpsect=9229"
+  },
+  "author": "JingHong",
+  "license": "ISC",
+  "dependencies": {
+    "cache-manager-fs-hash": "0.0.8",
+    "crypto-js": "^4.0.0",
+    "egg": "^2.26.0",
+    "egg-cache": "0.0.6",
+    "egg-cors": "^2.2.3",
+    "egg-jwt": "^3.1.7",
+    "egg-mysql": "^3.0.0",
+    "egg-scripts": "^2.13.0",
+    "egg-validate": "^2.0.2",
+    "egg-view-ejs": "^2.0.1",
+    "fast-xml-parser": "^3.16.0",
+    "mime": "^2.4.6"
+  },
+  "devDependencies": {
+    "egg-bin": "^4.14.1"
+  }
+}

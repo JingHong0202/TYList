@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%- title %></title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/ant-design-vue@1.6.0/dist/antd.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/aplayer@1.10.0/dist/APlayer.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@1.6.0/dist/antd.min.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/aplayer@1.10.0/dist/APlayer.min.js"></script>
+    <link rel="stylesheet" href="/css/DPlayer.min.css" />
+    <script async src="/js/DPlayer.min.js"></script>
+    <style>
+      #app {
+        min-height: 100vh;
+        min-width: 100vw;
+      }
+      #components-layout-demo-basic {
+        text-align: center;
+      }
+      .ant-layout-has-sider {
+        height: 100vh;
+      }
+      #components-layout-demo-basic .ant-layout-header,
+      #components-layout-demo-basic .ant-layout-footer {
+        background: #7dbcea;
+        color: #fff;
+      }
+      #components-layout-demo-basic .ant-layout-footer {
+        line-height: 1.5;
+      }
+      #components-layout-demo-basic .ant-layout-sider {
+        background: #3ba0e9;
+        color: #fff;
+        line-height: 120px;
+      }
+      #components-layout-demo-basic .ant-layout-content {
+        background: rgba(16, 142, 233, 1);
+        color: #fff;
+        min-height: 120px;
+        line-height: 120px;
+      }
+      #components-layout-demo-basic > .ant-layout {
+        margin-bottom: 48px;
+      }
+      #components-layout-demo-basic > .ant-layout:last-child {
+        margin: 0;
+      }
+      .my-sider {
+        overflow: auto;
+      }
+      .spin-content {
+        border: 1px solid #91d5ff;
+        background-color: rgba(230, 247, 255, 0.8);
+        padding: 30px;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+      }
+      .ant-spin-dot {
+        margin-right: 10px;
+      }
+      #dplayer {
+        width: 100%;
+        height: 100%;
+      }
+      .cover {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+      }
+      .cover img {
+        margin: auto;
+      }
+      .audioBox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      .default {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      .continear {
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 100px;
+      }
+      .continear img {
+        display: block;
+        width: 100px;
+        margin: 10px auto;
+      }
+      .continear .bottom button:hover {
+        background: rgb(67, 164, 255);
+      }
+      .continear .bottom button {
+        display: block;
+        cursor: pointer;
+        color: white;
+        width: 100%;
+        margin: 0;
+        line-height: 30px;
+        border-radius: 5px;
+        outline: none;
+        background: #1890ff;
+        border: none;
+        transition: all 0.2s;
+      }
+      .title {
+        text-align: center;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <a-spin tip="Loading..." class="spin-content" v-show="spinning"> </a-spin>
+      <a-layout>
+        <a-layout-sider
+          collapsible
+          theme="light"
+          class="my-sider"
+          @collapse="onCollapse"
+          width="500px"
+        >
+          <a-directory-tree
+            v-show="toggleTree"
+            @select="onSelect"
+            :load-data="onLoadData"
+            :tree-data="treeData"
+            style="padding-bottom: 48px;"
+            @dblclick="ondbclick"
+          >
+          </a-directory-tree>
+        </a-layout-sider>
+        <a-layout>
+          <a-layout-content
+            style="background: url('/img/cool-background.svg'); background-size: cover;"
+          >
+            <div class="audioBox" v-if="audio">
+              <div id="aplayer"></div>
+            </div>
+            <div id="dplayer" v-if="video"> </div>
+            <div class="cover" v-if="img">
+              <img :src="img" />
+            </div>
+            <div class="default" v-else>
+              <div class="continear" v-if="MyDefault">
+                <img src="/img/zip.png" />
+                <div class="bottom">
+                  <h2 class="title">{{ this.MyDefault.title }}</h2>
+                  <button @click="down">下载</button>
+                </div>
+              </div>
+            </div>
+          </a-layout-content>
+        </a-layout>
+      </a-layout>
+    </div>
+    <script>
+      Vue.use(antd)
+      new Vue({
+        el: '#app',
+        data: {
+          spinning: false,
+          treeData: [
+            { title: '<%- data.fileName%>', key: '<%- data.id%>', type: '<%- data.fileType%>',user: <%- data.user %> ,isLeaf: <%= data.fileType !== 'folder' ? true : false %>}
+          ],
+          currents: null,
+          video: null,
+          img: null,
+          currentKey: null,
+          audio: null,
+          MyDefault: null,
+          toggleTree: true,
+        },
+        methods: {
+         async onCollapse (toggle) {
+           this.toggleTree = !toggle
+         },
+         async down () {
+          let url = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,this.MyDefault.key)
+          window.open(url[0]['downloadUrl'])
+         },
+        async ondbclick (event, item) {
+            if (item.dataRef.type === 'folder' || item.dataRef.type === 'page') return
+            window.open((await this.getDownloadUrl(this.treeData[0].key, this.treeData[0].user, item.dataRef.key))[0]['downloadUrl'])
+          },
+          async onSelect(keys, event) {
+            let current = event.node.dataRef
+            if (this.currentKey === current.key || current.type === 'folder' ) return
+            this.currentKey = current.key
+            this.video = false
+            this.img = false
+            this.audio = false
+            this.spinning = true
+            switch (current.type) {
+              case 'page':
+                try {
+                  this.currents = await (
+                    await fetch(`?getlist=1&fileId=${current.fileId}&page=${current.key}`)
+                  ).json()
+                } catch (error) {
+                  this.$message.error({ content: error.toString() })
+                  this.spinning = false
+                }
+                current.parent.children.pop()
+                current.parent.children = [
+                  ...current.parent.children,
+                  ...this.formatList(this.currents.data)
+                ]
+                let recordCount = this.currents.recordCount,
+                  max = Math.ceil(recordCount / 100)
+                if (max !== this.currents.pageNum) {
+                  current.parent.children.push({
+                    title: '下一页',
+                    key: current.key + 1,
+                    type: 'page',
+                    isLeaf: true,
+                    fileId: current.fileId,
+                    parent: current.parent
+                  })
+                }
+                this.treeData = [...this.treeData]
+                this.spinning = false
+                break
+              case 'mp4':
+                this.video = true
+                this.$nextTick(async () => {
+                  let key = current.key
+                  let url = await this.getDownloadUrl(this.treeData[0].key, this.treeData[0].user, key)
+                  new DPlayer({
+                    container: document.getElementById('dplayer'),
+                    video: {
+                      url: url[0]['downloadUrl'],
+                      type: 'auto',
+                    }
+                  })
+                  this.spinning = false
+                })
+                break
+              case 'png':
+                let url1 = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,current.key)
+                this.img = url1[0]['imageInfo'].icon.largeUrl
+                this.spinning = false
+                break
+              case 'jpg':
+
+                let url2 = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,current.key)
+                this.img = url2[0]['downloadUrl']
+                this.spinning = false
+                break
+              case 'gif':
+
+                let url3 = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,current.key)
+                this.img = url3[0]['downloadUrl']
+                this.spinning = false
+                break
+              case 'mp3':
+
+                this.audio = true
+                this.$nextTick(async () => {
+                  let key2 = current.key
+                  let url2 = await this.getDownloadUrl(this.treeData[0].key, this.treeData[0].user, key2)
+                  new APlayer({
+                      container: document.getElementById('aplayer'),
+                      audio: [{
+                          name: url2[0].fileName,
+                          url: url2[0].downloadUrl,
+                          artist: url2[0].audioInfo.artist,
+                          cover: url2[0].audioInfo.icon.largeUrl,
+                          preload:false,
+                          autoplay:false
+                      }]
+                  })
+                  this.spinning = false
+                })
+
+                break
+              default:
+                this.MyDefault = current
+                this.spinning = false
+            }
+          },
+          async getDownloadUrl (parent,user,fileId) {
+           try {
+              return  await( await fetch(`/downShare/${parent}/${user}/${fileId}`) ).json()
+
+           } catch (error) {
+              this.$message.error({ content: error.toString() })
+           }
+          },
+          formatList(list) {
+            return list.map(item => {
+              return {
+                title: item.fileName,
+                key: item.fileId,
+                type: item.fileType ? item.fileType : 'folder',
+                isLeaf: item.fileType ? true : false
+              }
+            })
+          },
+          onLoadData(treeNode) {
+            this.spinning = true
+            return new Promise(async resolve => {
+              if (
+                treeNode.dataRef.children ||
+                treeNode.dataRef.type !== 'folder' ||
+                treeNode.dataRef.type === 'page'
+              ) {
+                resolve()
+                this.spinning = false
+                return
+              }
+
+              try {
+                this.currents = await (
+                  await fetch(`?getlist=1&fileId=${treeNode.dataRef.key}&page=${1}`)
+                ).json()
+                if (this.currents.code === 500) {
+                  this.spinning = false
+                  throw new Error(this.currents.msg)
+                }
+              } catch (error) {
+                this.$message.error({ content: error.toString() })
+              }
+              treeNode.dataRef.children = this.formatList(this.currents.data)
+              let recordCount = this.currents.recordCount,
+                max = Math.ceil(recordCount / 100)
+              if (max !== 0 && max !== this.currents.pageNum) {
+                treeNode.dataRef.children.push({
+                  title: '下一页',
+                  key: 2,
+                  type: 'page',
+                  isLeaf: true,
+                  fileId: treeNode.dataRef.key,
+                  parent: treeNode.dataRef
+                })
+              }
+              this.treeData = [...this.treeData]
+              resolve()
+              this.spinning = false
+            })
+          }
+        }
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/DPlayer.min.css" />
+    <style>
+      *{
+          padding:0;
+          margin:0;
+      }
+      body {
+        background: #000000;
+      }
+      #dplayer {
+          width:100vw;
+          height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="dplayer"> </div>
+    <script src="/js/DPlayer.min.js"></script>
+    <script>
+      const dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        video: {
+          url: '<%- downloadUrl %>',
+          type: 'auto',
+        }
+      })
+    </script>
+  </body>
+</html>

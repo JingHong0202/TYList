@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%- title %></title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/ant-design-vue@1.6.0/dist/antd.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@1.6.0/dist/antd.min.js"></script>
+    <style>
+      body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: url('/img/part-login@2x.jpg');
+        background-size: cover;
+      }
+      .continear {
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 100px;
+      }
+      .continear img {
+        display: block;
+        width: 100px;
+        margin: 10px auto;
+      }
+      .continear .bottom input {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        border: none;
+        border-radius: 5px;
+        line-height: 30px;
+        margin-bottom: 10px;
+        outline: none;
+        padding-left: 10px;
+        outline-color: #1890ff;
+      }
+      .continear .bottom button:hover {
+        background: rgb(67, 164, 255);
+      }
+      .continear .bottom button {
+        display: block;
+        cursor: pointer;
+        color: white;
+        width: 100%;
+        margin: 0;
+        line-height: 30px;
+        border-radius: 5px;
+        outline: none;
+        background: #1890ff;
+        border: none;
+        transition: all 0.2s;
+      }
+      .title {
+        text-align: center;
+        color: white;
+        max-width:300px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="continear">
+      <% if (!expired) { %>
+      <img src="/img/zip.png" alt="" />
+      <div class="bottom">
+        <h2 class="title"><%- title %></h2>
+        <input type="password" placeholder="输入密码" v-model="pass" />
+        <button @click="submit">确认</button>
+      </div>
+      <% } else {%>
+      <a-result
+        status="error"
+        title="分享链接已过期"
+      >
+      </a-result>
+      <% } %>
+    </div>
+    <script>
+          let fileId = <%- fileId  %>
+      Vue.use(antd)
+      new Vue({
+          el: '.continear',
+          data: {
+              pass: ''
+          },
+          methods: {
+              async submit () {
+                 let res =await (await fetch('?code='+this.pass)).json()
+                 if (res.code === 500) {
+                   return  this.$message.error({
+                         content: res.msg
+                     })
+                 }
+                if (res.code === 200) {
+                    window.location = '/shareList/'+fileId
+                }
+              }
+          }
+      })
+    </script>
+  </body>
+</html>
