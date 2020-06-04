@@ -1,4 +1,4 @@
-const domainWhiteList = ['http://127.0.0.1:7001'],
+const domainWhiteList = ['http://192.168.61.128:7001'],
   secret = 'jinghong',
   path = require('path'),
   fsStore = require('cache-manager-fs-hash')
@@ -47,10 +47,10 @@ module.exports = appInfo => {
     middleware: ['access', 'errorHandler'],
     mysql: {
       client: {
-        host: 'localhost',
+        host: 'db',
         port: '3306',
-        user: 'root',
-        password: 'xuyuxin',
+        user: 'ty',
+        password: 'yinger2015',
         database: 'ty'
       },
       app: true
@@ -84,7 +84,7 @@ module.exports = appInfo => {
     cluster: {
       listen: {
         port: 7001,
-        hostname: 'localhost', // 不建议设置 hostname 为 '0.0.0.0'，它将允许来自外部网络和来源的连接，请在知晓风险的情况下使用
+        hostname: '0.0.0.0', // 不建议设置 hostname 为 '0.0.0.0'，它将允许来自外部网络和来源的连接，请在知晓风险的情况下使用
         // path: '/var/run/egg.sock',
         'ignore-stderr': true
       }
