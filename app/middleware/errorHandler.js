@@ -1,6 +1,7 @@
 'use strict'
 module.exports = () => {
   return async function errorHandler(ctx, next) {
+    // console.log(ctx.request)
     try {
       await next()
     } catch (err) {

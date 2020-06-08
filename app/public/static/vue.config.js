@@ -3,7 +3,6 @@ function resolve(dir) {
   return path.join(__dirname, dir)
 }
 module.exports = {
-  outputDir: '../dist',
   transpileDependencies: ['vue-echarts', 'resize-detector'],
   configureWebpack: config => {
     config.resolve = {

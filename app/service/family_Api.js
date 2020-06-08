@@ -31,6 +31,8 @@ class familyApiService extends Service {
             Signature: Signature,
             Date: GMT,
             Connection: 'keep-alive',
+            'user-agent':
+              'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0',
             Accept: '*/*',
             'Accept-Encoding': 'gzip, deflate, br'
           },
@@ -54,18 +56,18 @@ class familyApiService extends Service {
     await this.app.cache.set(`down-${familyId}-${fileid}`, res, 9000)
     return res
   }
-  // async getDownloadUrls(uid, fileid, page) {
-  //   let urls = await this.family(uid, fileid, page)
-  //   if (await this.app.cache.has(`down-${this.familyId}-${fileid}-${page}`)) {
-  //     return await this.app.cache.get(`down-${this.familyId}-${fileid}-${page}`)
-  //   }
-  //   let list = urls.listFiles.fileList
-  //   if (!list.file) return list
-  //   let res = await Promise.all(await this.getUrl(list.file, this.familyId))
-  //   list.file = res
-  //   await this.app.cache.set(`down-${this.familyId}-${fileid}-${page}`, list, 9000)
-  //   return list
-  // }
+  async getDownloadUrls(uid, familyId, fileid, page = 1) {
+    let urls = await this.family(uid, fileid, page)
+    if (await this.app.cache.has(`down-${familyId}-${fileid}-${page}`)) {
+      return await this.app.cache.get(`down-${familyId}-${fileid}-${page}`)
+    }
+    let list = urls.listFiles.fileList
+    if (!list.file) return list
+    let res = await Promise.all(await this.getUrl(list.file, familyId, uid))
+    list.file = res
+    await this.app.cache.set(`down-${familyId}-${fileid}-${page}`, list, 9000)
+    return list
+  }
 
   async getFileInfo(uid, familyId, fileId) {
     if (await this.app.cache.has(`${familyId}-${fileId}`))
@@ -95,7 +97,8 @@ class familyApiService extends Service {
           Signature: Signature,
           Date: GMT,
           SessionKey: sessionKey_family,
-          Host: 'api.cloud.189.cn'
+          Host: 'api.cloud.189.cn',
+          'user-agent': 'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0'
         },
         timeout: this.app.config.myConfig.timeout,
         dataType: 'text'
@@ -131,7 +134,9 @@ class familyApiService extends Service {
             Date: GMT,
             Signature: Signature,
             SessionKey: sessionKey_family,
-            Host: 'api.cloud.189.cn'
+            Host: 'api.cloud.189.cn',
+            'user-agent':
+              'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0'
           },
           dataType: 'text',
           timeout: this.app.config.myConfig.timeout
@@ -148,9 +153,25 @@ class familyApiService extends Service {
         res: {
           headers: { location }
         }
-      } = await this.ctx.curl(fileDownloadUrl)
+      } = await this.ctx.curl(fileDownloadUrl, {
+        headers: {
+          'user-agent': 'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0'
+        }
+      })
       if (!location) this.ctx.throw('获取链接失败')
       item.downloadUrl = location
+      // let fileInfo = await this.getFileInfo(uid, familyId, fileId)
+      //        folder: [
+      //     { fid: 1131417601748246, fname: '家庭云' },
+      //     { fid: 6142737644360167, fname: '其他' },
+      //     { fid: '9154217712473439', fname: '《{This is video}》' },
+      //     { fid: 6130117641321529, fname: '【mosaic】' },
+      //     { fid: 6154219734731620, fname: '永井す~みれ' },
+      //     { fid: 6154219734731683, fname: '【永井す~みれ】DVAJ-273' },
+      //     { fid: 8130119702939783, fname: 'DVAJ-273.mp4' }
+      //   ]
+      // }
+      // console.log(fileInfo)
       return item
     })
   }
@@ -182,7 +203,8 @@ class familyApiService extends Service {
         headers: {
           Date: GMT,
           SessionKey: sessionKey_family,
-          Signature: Signature
+          Signature: Signature,
+          'user-agent': 'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0'
         },
         dataType: 'text'
       }
@@ -231,7 +253,8 @@ class familyApiService extends Service {
           SessionKey: user.sessionKey_family,
           Signature: Signature,
           Date: GMT,
-          host: 'api.cloud.189.cn'
+          host: 'api.cloud.189.cn',
+          'user-agent': 'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0'
         },
         dataType: 'text',
         timeout: this.app.config.myConfig.timeout

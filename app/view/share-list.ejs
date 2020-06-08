@@ -132,6 +132,7 @@
       .title {
         text-align: center;
         color: white;
+        max-width: 300px
       }
     </style>
   </head>
@@ -160,14 +161,14 @@
           <a-layout-content
             style="background: url('/img/cool-background.svg'); background-size: cover;"
           >
-            <div class="audioBox" v-if="audio">
+            <div class="audioBox" v-show="audio">
               <div id="aplayer"></div>
             </div>
-            <div id="dplayer" v-if="video"> </div>
-            <div class="cover" v-if="img">
+            <div id="dplayer" v-show="video"> </div>
+            <div class="cover" v-show="img">
               <img :src="img" />
             </div>
-            <div class="default" v-else>
+            <div class="default" v-show='MyDefault'>
               <div class="continear" v-if="MyDefault">
                 <img src="/img/zip.png" />
                 <div class="bottom">
@@ -318,8 +319,8 @@
               return {
                 title: item.fileName,
                 key: item.fileId,
-                type: item.fileType ? item.fileType : 'folder',
-                isLeaf: item.fileType ? true : false
+                type: item.isFolder ?  'folder' : item.fileType,
+                isLeaf: !item.isFolder ? true : false
               }
             })
           },

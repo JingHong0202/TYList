@@ -41,6 +41,6 @@ module.exports = app => {
     .get('/', controller.home.index)
     // webdav
     .propfind(/^\/webdav\/([\w\W-.]+$)/, controller.webdav.index)
-    .get('/webdavDown', controller.webdav.down)
+  // .get('/webdavDown', controller.webdav.down)
   // .propfind('/WebdavList', controller.webdav.list)
 }

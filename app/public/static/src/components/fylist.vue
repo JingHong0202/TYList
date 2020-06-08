@@ -482,7 +482,9 @@
           (item, index) =>
             `${this.selectedRowName[index]} : ${this.$config.server}/familyDown/${
               this.selectUser
-            }/${item}?auth=${JSON.parse(localStorage.getItem('access'))} \n\r`
+            }/${this.selectFamilyId}/${item}?auth=${JSON.parse(
+              localStorage.getItem('access')
+            )} \n\r`
         )
         this.visible2 = true
         urls.forEach(item => {

@@ -18,7 +18,9 @@ class listFileApiService extends Service {
         `https://cloud.189.cn/v2/listFiles.action?fileId=${fileid}&mediaType=&keyword=${wd}&inGroupSpace=false&orderBy=1&order=ASC&pageNum=${page}&pageSize=100&noCache=${Math.random()}`,
         {
           headers: {
-            cookie: data.cookie
+            cookie: data.cookie,
+            'user-agent':
+              'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0'
           },
           dataType: 'text',
           timeout: this.app.config.myConfig.timeout
@@ -41,7 +43,8 @@ class listFileApiService extends Service {
       {
         headers: {
           cookie: cookie,
-          referer: 'https://cloud.189.cn/main.action'
+          referer: 'https://cloud.189.cn/main.action',
+          'user-agent': 'User-Agent,Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0'
         },
         dataType: 'json',
         timeout: this.app.config.myConfig.timeout
@@ -92,13 +95,13 @@ class listFileApiService extends Service {
     await this.app.cache.set(`down-${uid}-${fileid}`, res, 9000)
     return res
   }
-  async getDownloadUrls(uid, fileid, page) {
+  async getDownloadUrls(uid, fileid, page = 1) {
     let urls = await this.list(uid, fileid, page)
 
     if (await this.app.cache.has(`down-${this.uid}-${this.fileid}-${page}`))
       return await this.app.cache.get(`down-${this.uid}-${this.fileid}-${page}`)
 
-    let filters = urls.data.filter(item => item.downloadUrl)
+    let filters = urls.data && urls.data.filter(item => item.downloadUrl)
     if (!filters.length) return urls
 
     let res3 = await Promise.all(await this.getUrl(filters, this.cookie))

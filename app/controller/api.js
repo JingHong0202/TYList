@@ -11,7 +11,7 @@ class apiController extends Controller {
       password: 'password'
     })
     let { username, password } = this.ctx.request.body
-    this.ctx.body = await this.ctx.service.loginApi.login(username, password)
+    this.ctx.body = await this.ctx.service.login.login(username, password)
   }
 
   async listFile() {

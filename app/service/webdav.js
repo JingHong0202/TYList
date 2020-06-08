@@ -27,11 +27,10 @@ class webdavService extends Service {
         if (!familyId) this.ctx.throw(400)
         familyId = familyId.familyInfo.find(item => item.remarkName === +share.user).familyId
         this.ctx.query.family = familyId
-        res = (await this.ctx.service.familyApi.family(share.user, id || share.id)).listFiles
-          .fileList
+        res = await this.ctx.service.familyApi.getDownloadUrls(share.user, familyId, id || share.id)
         break
       case '个人云':
-        let { data } = await this.ctx.service.listFileApi.list(share.user, id || share.id)
+        let data = await this.ctx.service.listFileApi.getDownloadUrls(share.user, id || share.id)
         data = this.unity(data)
         let folder = data.filter(item => item.isFolder),
           file = data.filter(item => !item.isFolder)
@@ -42,6 +41,7 @@ class webdavService extends Service {
     return res
   }
   unity(list) {
+    list = list.data ? list.data : list
     return list.map(item => {
       return Object.assign(item, {
         name: item.fileName,
@@ -63,9 +63,7 @@ class webdavService extends Service {
       isFamily = share.category === '家庭云' ? '&amp;familyId=' + this.ctx.query.family : ''
     file = file.map(item => {
       return `<D:response>
-		<D:href>${this.app.config.myConfig.domain.TheirDomain}/webdavDown?category=${encodeURI(
-        share.category
-      )}&amp;id=${item.id}&amp;user=${share.user}${isFamily}</D:href>
+		<D:href>${item.downloadUrl}</D:href>
 		<D:propstat>
 			<D:status>HTTP/1.1 200 OK</D:status>
 			<D:prop>
@@ -100,7 +98,7 @@ class webdavService extends Service {
       file.push(`<D:response>
 		<D:href>${this.app.config.myConfig.domain.TheirDomain}/webdavDown?category=${encodeURI(
         share.category
-      )}&amp;id=${share.id}&amp;user=${share.user}${isFamily}</D:href>
+      )}&amp;id=${share.id}&amp;user=${share.user}&amp;size=${item.size}${isFamily}</D:href>
 		<D:propstat>
 			<D:status>HTTP/1.1 200 OK</D:status>
 			<D:prop>
@@ -117,7 +115,7 @@ class webdavService extends Service {
     ].join('')}</D:multistatus>`
   }
   async down() {
-    let { id, user, category } = this.ctx.query,
+    let { id, user, category, size } = this.ctx.query,
       res
     if (decodeURI(category) === '家庭云') {
       let { familyId } = this.ctx.query
@@ -125,7 +123,7 @@ class webdavService extends Service {
     } else {
       res = await this.ctx.service.listFileApi.getDownloadUrl(user, id)
     }
-    return res
+    return { res, size }
   }
   async list(info, fileId) {
     let res
