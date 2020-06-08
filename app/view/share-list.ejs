@@ -55,7 +55,9 @@
         margin: 0;
       }
       .my-sider {
-        overflow: auto;
+        max-width: 0px !important;
+        min-width: 0px !important;
+        flex: 0 0 0px !important;
       }
       .spin-content {
         border: 1px solid #91d5ff;
@@ -88,6 +90,8 @@
       }
       .cover img {
         margin: auto;
+        max-width: 80%;
+        max-height: 80vh;
       }
       .audioBox {
         display: flex;
@@ -106,7 +110,7 @@
       .continear {
         border-radius: 10px;
         background: rgba(0, 0, 0, 0.5);
-        padding: 100px;
+        padding: 50px;
       }
       .continear img {
         display: block;
@@ -132,7 +136,10 @@
       .title {
         text-align: center;
         color: white;
-        max-width: 300px
+        max-width: 300px;
+      }
+      .ant-tree-node-content-wrapper:before {
+        width: 100vw;
       }
     </style>
   </head>
@@ -141,23 +148,29 @@
       <a-spin tip="Loading..." class="spin-content" v-show="spinning"> </a-spin>
       <a-layout>
         <a-layout-sider
-          collapsible
           theme="light"
-          class="my-sider"
-          @collapse="onCollapse"
-          width="500px"
+          :class="{'my-sider': collapsed}"
+          width="50vw"
+          v-model="collapsed"
+          :trigger="null"
+          collapsible
+          style="overflow: auto;"
         >
           <a-directory-tree
             v-show="toggleTree"
             @select="onSelect"
             :load-data="onLoadData"
             :tree-data="treeData"
-            style="padding-bottom: 48px;"
+            style="padding-bottom: 8px;"
             @dblclick="ondbclick"
           >
           </a-directory-tree>
         </a-layout-sider>
         <a-layout>
+          <a-layout-header style="background: transparent; padding: 0; padding-left: 15px;">
+            <a-button :icon="collapsed ? 'menu-unfold' : 'menu-fold'" type="primary"
+            @click="onCollapse" / >
+          </a-layout-header>
           <a-layout-content
             style="background: url('/img/cool-background.svg'); background-size: cover;"
           >
@@ -168,7 +181,7 @@
             <div class="cover" v-show="img">
               <img :src="img" />
             </div>
-            <div class="default" v-show='MyDefault'>
+            <div class="default" v-show="MyDefault">
               <div class="continear" v-if="MyDefault">
                 <img src="/img/zip.png" />
                 <div class="bottom">
@@ -197,10 +210,12 @@
           audio: null,
           MyDefault: null,
           toggleTree: true,
+          collapsed: false
         },
         methods: {
-         async onCollapse (toggle) {
-           this.toggleTree = !toggle
+         async onCollapse () {
+           this.toggleTree = !this.toggleTree
+           this.collapsed = !this.collapsed
          },
          async down () {
           let url = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,this.MyDefault.key)
