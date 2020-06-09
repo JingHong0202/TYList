@@ -2,9 +2,13 @@ const Controller = require('egg').Controller
 
 class shareController extends Controller {
   async add() {
-    this.ctx.validate({
-      file: 'object'
-    })
+    try {
+      this.ctx.validate({
+        file: 'object'
+      })
+    } catch (error) {
+      this.ctx.trhow(400)
+    }
     let { file, pass } = this.ctx.request.body
     this.ctx.body = await this.ctx.service.share.add(file, pass)
   }

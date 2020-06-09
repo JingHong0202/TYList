@@ -358,7 +358,7 @@
                 ).json()
                 if (this.currents.code === 500) {
                   this.spinning = false
-                  throw new Error(this.currents.msg)
+                  throw new Error('获取失败,原因可能是账户状态失效')
                 }
               } catch (error) {
                 this.$message.error({ content: error.toString() })

@@ -2,14 +2,18 @@ const Controller = require('egg').Controller
 
 class apiController extends Controller {
   async login() {
-    this.ctx.validate({
-      username: {
-        type: 'string',
-        min: 11,
-        max: 11
-      },
-      password: 'password'
-    })
+    try {
+      this.ctx.validate({
+        username: {
+          type: 'string',
+          min: 11,
+          max: 11
+        },
+        password: 'password'
+      })
+    } catch (error) {
+      this.ctx.throw(400)
+    }
     let { username, password } = this.ctx.request.body
     this.ctx.body = await this.ctx.service.login.login(username, password)
   }

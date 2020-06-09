@@ -362,10 +362,11 @@
                 this.currents = await (
                   await fetch(`?getlist=1&fileId=${treeNode.dataRef.key}&page=${1}`)
                 ).json()
-                if (this.currents.code === 500) {
+                if (this.currents.code === 500 ) {
                   this.spinning = false
-                  throw new Error(this.currents.msg)
+                  throw new Error(this.currents.msg || '未知错误')
                 }
+              
               } catch (error) {
                 this.$message.error({ content: error.toString() })
               }

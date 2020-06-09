@@ -12,7 +12,7 @@ module.exports = () => {
       // status 如果没有,则统一为500
       const status = err.status || 500
       // 如果是500错误，且是生产环境，则统一显示“Internal Server Error”
-      const error = status === 500 && ctx.app.config.env === 'prod' ? 'Internal Server Error' : err
+      // const error = status === 500 && ctx.app.config.env === 'prod' ? 'Internal Server Error' : err
       // 改变上下文状态代码
       ctx.status = status
       // 从 error 对象上读出各个属性，设置到响应中
@@ -21,8 +21,7 @@ module.exports = () => {
       // }
       ctx.helper.fail(ctx, {
         code: status,
-        msg: error.message,
-        data: error.errors
+        msg: (err && err.message) || 'Internal Server Error'
       })
     }
   }

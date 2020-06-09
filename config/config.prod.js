@@ -1,7 +1,7 @@
 const domainWhiteList = ['http://192.168.61.128:7001'],
   secret = 'jinghong'
 
-modules.exports = appInfo => {
+module.exports = appInfo => {
   return {
     access: {
       domainWhiteList: domainWhiteList
@@ -37,18 +37,6 @@ modules.exports = appInfo => {
         // path: '/var/run/egg.sock',
         'ignore-stderr': true
       }
-    },
-    static: {
-      // 静态化访问前缀,如：`http://127.0.0.1:7001/static/images/logo.png`
-      prefix: '/',
-      dir: [
-        path.join(appInfo.baseDir, 'app/public'),
-        path.join(appInfo.baseDir, 'app/public/dist')
-      ], // `String` or `Array:[dir1, dir2, ...]` 静态化目录,可以设置多个静态化目录
-      dynamic: true, // 如果当前访问的静态资源没有缓存，则缓存静态文件，和`preload`配合使用；
-      preload: true,
-      maxAge: 86400, // in prod env, 0 in other envs
-      buffer: true // in prod env, false in other envs
     },
     mysql: {
       client: {
