@@ -35,8 +35,8 @@ module.exports = app => {
     .get('/getShareAll', controller.share.all)
     .get('/share/:fileid', controller.share.index)
     .get('/shareList/:fileid', controller.share.list)
-    .get('/downShare/:parent/:user/:fileId', controller.share.down)
-    .get('/familyDownShare/:parent/:user/:fileId', controller.share.familyDown)
+    .get('/downShare/:parent/:fileId', controller.share.down)
+    .get('/familyDownShare/:parent/:fileId', controller.share.familyDown)
     // default
     .get('/', controller.home.index)
     // webdav

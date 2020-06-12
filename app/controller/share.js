@@ -25,14 +25,22 @@ class shareController extends Controller {
     await this.ctx.service.share.list(this.ctx.params.fileid)
   }
   async down() {
-    this.ctx.body = await this.ctx.service.share.down(
+    let res = await this.ctx.service.share.down(
       ...Object.keys(this.ctx.params).map(item => this.ctx.params[item])
     )
+    if (this.ctx.query.flag) {
+      return this.ctx.unsafeRedirect(res[0]['downloadUrl'])
+    }
+    this.ctx.body = res
   }
   async familyDown() {
-    this.ctx.body = await this.ctx.service.share.FamilyDown(
+    let res = await this.ctx.service.share.FamilyDown(
       ...Object.keys(this.ctx.params).map(item => this.ctx.params[item])
     )
+    if (this.ctx.query.flag) {
+      return this.ctx.unsafeRedirect(res[0]['downloadUrl'])
+    }
+    this.ctx.body = res
   }
   async all() {
     let all = await this.app.mysql.select('ty_share')

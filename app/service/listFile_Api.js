@@ -92,7 +92,7 @@ class listFileApiService extends Service {
     if (!filters.length) return { code: 500, msg: '此资源不可下载' }
 
     let res = await Promise.all(await this.getUrl(filters, data.cookie))
-    await this.app.cache.set(`down-${uid}-${fileid}`, res, 9000)
+    await this.app.cache.set(`down-${uid}-${fileid}`, res, 1800)
     return res
   }
   async getDownloadUrls(uid, fileid, page = 1) {

@@ -25,6 +25,7 @@ class shareService extends Service {
         id: file.fileId,
         fileName: file.fileName,
         fileType: file.fileType,
+        fileSize: file.fileSize ? file.fileSize : '无',
         user: file.user,
         expired: file.expired,
         category: file.category,
@@ -47,19 +48,21 @@ class shareService extends Service {
     }
     return Math.abs(addtime - ~~(new Date().getTime() / 1000)) > expired
   }
-  async down(parent, user, fileId) {
-    if (this.app.mysql.get('ty_share', { id: parent })) {
-      let res = await this.ctx.service.listFileApi.getDownloadUrl(user, fileId)
+  async down(parent, fileId) {
+    let is = await this.app.mysql.get('ty_share', { id: parent })
+    if (is) {
+      let res = await this.ctx.service.listFileApi.getDownloadUrl(is.user, fileId)
       return res
     }
     this.ctx.throw(403)
   }
-  async FamilyDown(parent, user, fileId) {
-    if (this.app.mysql.get('ty_share', { id: parent })) {
-      let familyId = (await this.ctx.service.familyApi.getfamilyInfos(user)).familyInfo.find(
-        item => item.remarkName === +user
+  async FamilyDown(parent, fileId) {
+    let is = await this.app.mysql.get('ty_share', { id: parent })
+    if (is) {
+      let familyId = (await this.ctx.service.familyApi.getfamilyInfos(is.user)).familyInfo.find(
+        item => item.remarkName === +is.user
       ).familyId
-      let res = await this.ctx.service.familyApi.getDownloadUrl(user, familyId, fileId)
+      let res = await this.ctx.service.familyApi.getDownloadUrl(is.user, familyId, fileId)
       return res
     }
     this.ctx.throw(403)

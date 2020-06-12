@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
     <title><%- title %></title>
     <link
       rel="stylesheet"
@@ -141,35 +144,82 @@
       .ant-tree-node-content-wrapper:before {
         width: 100vw;
       }
+       .autoWidth {
+          max-width: 30vw !important;
+          min-width: 30vw !important;
+          flex: 0 0 30vw !important;
+        }
+      @media screen and (max-width: 500px) {
+        .autoWidth {
+          max-width: 80vw !important;
+          min-width: 80vw !important;
+          flex: 0 0 80vw !important;
+        }
+      }
     </style>
   </head>
   <body>
     <div id="app">
+        <a-modal
+      title="获取链接"
+      :visible="visible"
+      centered
+      :footer="null"
+      @cancel="close"
+      :mask="false"
+    >
+      <a-textarea v-model="copys" autoSize />
+    </a-modal>
       <a-spin tip="Loading..." class="spin-content" v-show="spinning"> </a-spin>
       <a-layout>
         <a-layout-sider
           theme="light"
-          :class="{'my-sider': collapsed}"
-          width="50vw"
+          :class="{'my-sider': collapsed,'autoWidth': !collapsed}"
+          width="40vw"
           v-model="collapsed"
           :trigger="null"
           collapsible
           style="overflow: auto;"
         >
           <a-directory-tree
+            checkable
+            v-model="checkedKeys"
             v-show="toggleTree"
             @select="onSelect"
             :load-data="onLoadData"
             :tree-data="treeData"
             style="padding-bottom: 8px;"
             @dblclick="ondbclick"
+             @check='check'
           >
           </a-directory-tree>
         </a-layout-sider>
         <a-layout>
-          <a-layout-header style="background: transparent; padding: 0; padding-left: 15px;">
-            <a-button :icon="collapsed ? 'menu-unfold' : 'menu-fold'" type="primary"
-            @click="onCollapse" / >
+          <a-layout-header style="white-space: nowrap;background: transparent; padding: 0; padding-left: 15px;">
+            <a-button
+              :icon="collapsed ? 'menu-unfold' : 'menu-fold'"
+              type="primary"
+              @click="onCollapse"
+            >
+            </a-button>
+            <a-button
+              :disabled="!checkedKeys.length"
+              icon="arrow-down"
+              type="danger"
+              @click="downLoads"
+              style="margin-left: 20px;"
+            >
+              获取链接
+            </a-button>
+            <a-button
+              :disabled="!checkedKeys.length"
+              icon="delete"
+              type="danger"
+              @click="() => {checkedKeys = []}"
+            >
+              清除选择
+            </a-button>
+          </a-layout-header>
           </a-layout-header>
           <a-layout-content
             style="background: url('/img/cool-background.svg'); background-size: cover;"
@@ -201,8 +251,10 @@
         data: {
           spinning: false,
           treeData: [
-            { title: '<%- data.fileName%>', key: '<%- data.id%>', type: '<%- data.fileType%>',user: <%- data.user %> ,isLeaf: <%= data.fileType !== 'folder' ? true : false %>}
+            { title: '<%- data.fileName%>', key: '<%- data.id%>', type: '<%- data.fileType%>' ,isLeaf: <%= data.fileType !== 'folder' ? true : false %>, disableCheckbox: <%= data.fileType === 'folder' ? true : false %>}
           ],
+          checkedKeys: [],
+          checkedName:[],
           currents: null,
           video: null,
           img: null,
@@ -210,20 +262,40 @@
           audio: null,
           MyDefault: null,
           toggleTree: true,
-          collapsed: false
+          collapsed: false,
+          visible: false,
+          copys: ''
         },
+        // watch: {
+        //   checkedKeys (val, old) {
+        //     console.log(val, old);
+        //   }
+        // },
         methods: {
+          check(arg1, node) {
+            this.checkedName = node.checkedNodes.map(item => item.data.props.title)
+          },
+          close () {
+            this.visible = false
+          },
+          downLoads () {
+            let res = this.checkedKeys.map((item,i) =>{
+              return `${this.checkedName[i]}:\n${window.location.host}/downShare/${this.treeData[0].key}/${item}?flag=1\n\n`
+            })
+            this.copys = res.join('')
+            this.visible = true
+          },
          async onCollapse () {
            this.toggleTree = !this.toggleTree
            this.collapsed = !this.collapsed
          },
          async down () {
-          let url = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,this.MyDefault.key)
+          let url = await this.getDownloadUrl(this.treeData[0].key,this.MyDefault.key)
           window.open(url[0]['downloadUrl'])
          },
         async ondbclick (event, item) {
             if (item.dataRef.type === 'folder' || item.dataRef.type === 'page') return
-            window.open((await this.getDownloadUrl(this.treeData[0].key, this.treeData[0].user, item.dataRef.key))[0]['downloadUrl'])
+            window.open((await this.getDownloadUrl(this.treeData[0].key, item.dataRef.key))[0]['downloadUrl'])
           },
           async onSelect(keys, event) {
             let current = event.node.dataRef
@@ -267,7 +339,7 @@
                 this.video = true
                 this.$nextTick(async () => {
                   let key = current.key
-                  let url = await this.getDownloadUrl(this.treeData[0].key, this.treeData[0].user, key)
+                  let url = await this.getDownloadUrl(this.treeData[0].key, key)
                   new DPlayer({
                     container: document.getElementById('dplayer'),
                     video: {
@@ -279,19 +351,19 @@
                 })
                 break
               case 'png':
-                let url1 = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,current.key)
+                let url1 = await this.getDownloadUrl(this.treeData[0].key,current.key)
                 this.img = url1[0]['imageInfo'].icon.largeUrl
                 this.spinning = false
                 break
               case 'jpg':
 
-                let url2 = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,current.key)
+                let url2 = await this.getDownloadUrl(this.treeData[0].key,current.key)
                 this.img = url2[0]['downloadUrl']
                 this.spinning = false
                 break
               case 'gif':
 
-                let url3 = await this.getDownloadUrl(this.treeData[0].key,this.treeData[0].user,current.key)
+                let url3 = await this.getDownloadUrl(this.treeData[0].key,current.key)
                 this.img = url3[0]['downloadUrl']
                 this.spinning = false
                 break
@@ -300,7 +372,7 @@
                 this.audio = true
                 this.$nextTick(async () => {
                   let key2 = current.key
-                  let url2 = await this.getDownloadUrl(this.treeData[0].key, this.treeData[0].user, key2)
+                  let url2 = await this.getDownloadUrl(this.treeData[0].key, key2)
                   new APlayer({
                       container: document.getElementById('aplayer'),
                       audio: [{
@@ -321,9 +393,11 @@
                 this.spinning = false
             }
           },
-          async getDownloadUrl (parent,user,fileId) {
+          async getDownloadUrl (parent,fileId) {
            try {
-              return  await( await fetch(`/downShare/${parent}/${user}/${fileId}`) ).json()
+             let res = await( await fetch(`/downShare/${parent}/${fileId}`) ).json()
+             if (res.code && res.code !== 200) throw new Error(res.msg)
+              return  res
 
            } catch (error) {
               this.$message.error({ content: error.toString() })
@@ -331,14 +405,38 @@
           },
           formatList(list) {
             return list.map(item => {
+            size = item.fileSize && !item.isFolder ? "\xa0\xa0\xa0"+this.formatFileSize(item.fileSize) : ''
               return {
-                title: item.fileName,
+                title: item.fileName + size,
                 key: item.fileId,
                 type: item.isFolder ?  'folder' : item.fileType,
-                isLeaf: !item.isFolder ? true : false
+                isLeaf: !item.isFolder ? true : false,
+                disableCheckbox: item.isFolder ?  true : false
               }
             })
           },
+          formatFileSize(num) {
+              if (null == num || num == "") {
+                return "0 Bytes";
+              }
+              var unitArr = new Array(
+                "Bytes",
+                "KB",
+                "MB",
+                "GB",
+                "TB",
+                "PB",
+                "EB",
+                "ZB",
+                "YB"
+              );
+              var index = 0;
+              var srcsize = parseFloat(num);
+              index = Math.floor(Math.log(srcsize) / Math.log(1024));
+              var size = srcsize / Math.pow(1024, index);
+              size = size.toFixed(2); //保留的小数位数
+              return size + unitArr[index];
+            },
           onLoadData(treeNode) {
             this.spinning = true
             return new Promise(async resolve => {
