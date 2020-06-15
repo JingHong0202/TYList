@@ -25,7 +25,6 @@ class shareService extends Service {
         id: file.fileId,
         fileName: file.fileName,
         fileType: file.fileType,
-        fileSize: file.fileSize ? file.fileSize : '无',
         user: file.user,
         expired: file.expired,
         category: file.category,
