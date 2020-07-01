@@ -3,7 +3,7 @@ module.exports = {
   schedule: {
     type: 'worker',
     immediate: true,
-    cron: '0 30 0 1/1 * ? *',
+    cron: '0 30 0 1/1 * ?',
     cronOptions: {
       tz: 'Asia/Shanghai'
     }
