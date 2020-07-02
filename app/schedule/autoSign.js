@@ -3,10 +3,7 @@ module.exports = {
   schedule: {
     type: 'worker',
     immediate: true,
-    cron: '0 30 0 1/1 * ?',
-    cronOptions: {
-      tz: 'Asia/Shanghai'
-    }
+    cron: '0 */10 0 */1 * *'
   },
   async task(ctx) {
     let users = await ctx.app.mysql.select('ty_user')
