@@ -725,6 +725,9 @@
 </script>
 
 <style lang="stylus">
+  .ant-notification-notice
+    width: 600px;
+    margin-left: -235px;
   .file-btn
     margin-right 10px
   .list-window

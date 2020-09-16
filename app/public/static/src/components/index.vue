@@ -408,13 +408,8 @@
     computed: {
       operationDate() {
         let minute = ~~(this.systemInfos.operation / 60),
-          hours = ~~(minute / 60),
-          day = ~~(hours / 24),
-          month = ~~(day / 31),
-          year = ~~(month / 12)
-        return `${year ? year + '年' : ''}${month ? month + '月' : ''}${day ? day + '日' : ''}${
-          hours ? hours + '时' : ''
-        }${minute % 60}分`.replace(/\s/g, '')
+          hours = ~~(minute / 60)
+        return `${hours ? hours + '时' : ''}${minute % 60}分`.replace(/\s/g, '')
       }
     },
     mixins: [Common]
