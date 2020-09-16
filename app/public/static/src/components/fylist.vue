@@ -230,8 +230,9 @@
     async created() {
       await this.getUsers()
       await this.getFamilyIds(this.selectUser)
-      this.options[0].children = this.formatFamilyId(this.familyIds.familyInfo)
+      this.options[0].children = this.formatFamilyId()
       this.CascValue = [this.selectUser, this.selectFamilyId]
+      console.log(this.CascValue)
     },
     watch: {
       async e(val, old) {
@@ -381,7 +382,7 @@
             message: '分享成功',
             description: `分享链接: ${this.$config.server}/shareList/${
               this.Addshare.fileId
-            } \n\n 密码: ${res.pass ? res.pass : '空'}`,
+            } 密码: ${res.pass ? res.pass : '空'}`,
             duration: 0,
             btn: h => {
               return h(
@@ -423,7 +424,7 @@
         targetOption.loading = true
         this.selectUser = selectedOptions[0].value
         await this.getFamilyIds(this.selectUser)
-        selectedOptions[0].children = this.formatFamilyId(this.familyIds.familyInfo)
+        selectedOptions[0].children = this.formatFamilyId()
         this.CascValue = [this.selectUser, this.selectFamilyId]
         targetOption.loading = false
         this.options = [...this.options]
@@ -458,16 +459,18 @@
         this.CascValue = [this.selectUser, this.selectFamilyId]
       },
       async getFamilyIds(user) {
-        this.familyIds = await (
+        let res = await (
           await fetch(`${this.$config.server}/familyInfos/${user}`, {
             headers: {
               Authorization: JSON.parse(localStorage.getItem('access'))
             }
           })
         ).json()
-        this.selectFamilyId = this.familyIds.familyInfo.find(
-          item => item.remarkName === +user
-        ).familyId
+        this.familyIds = res && res.familyInfo.length ? res : { familyInfo: [res.familyInfo] }
+        this.selectFamilyId =
+          res && res.familyInfo.length
+            ? res.familyInfo.find(item => item.remarkName === +user).familyId
+            : res.familyInfo.familyId
       },
       async back() {
         // if (this.currentInfo.path.length <= 1) return
@@ -581,33 +584,43 @@
           return this.$message.error({ content: '还未登录请先登录' })
         }
         if (!this.query || fileId != ' ') {
-          let {
-            listFiles: { fileList }
-          } = await (
-            await fetch(
-              `${this.$config.server}/family/${this.selectUser}/${fileId}/${page}${
-                this.selectFamilyId ? '?family=' + this.selectFamilyId : ''
-              }`,
-              {
-                headers: {
-                  Authorization: JSON.parse(localStorage.getItem('access'))
+          try {
+            let {
+              listFiles: { fileList }
+            } = await (
+              await fetch(
+                `${this.$config.server}/family/${this.selectUser}/${fileId}/${page}${
+                  this.selectFamilyId ? '?family=' + this.selectFamilyId : ''
+                }`,
+                {
+                  headers: {
+                    Authorization: JSON.parse(localStorage.getItem('access'))
+                  }
                 }
-              }
-            )
-          ).json()
-          res = fileList
+              )
+            ).json()
+            res = fileList
+          } catch (err) {
+            this.loading = false
+            return this.$message.error({ content: '获取列表失败' })
+          }
         } else {
-          let fileList = await (
-            await fetch(
-              `${this.$config.server}/familySearch/${this.selectUser}/${this.selectFamilyId}/${this.query}/${page}`,
-              {
-                headers: {
-                  Authorization: JSON.parse(localStorage.getItem('access'))
+          try {
+            let fileList = await (
+              await fetch(
+                `${this.$config.server}/familySearch/${this.selectUser}/${this.selectFamilyId}/${this.query}/${page}`,
+                {
+                  headers: {
+                    Authorization: JSON.parse(localStorage.getItem('access'))
+                  }
                 }
-              }
-            )
-          ).json()
-          res = fileList
+              )
+            ).json()
+            res = fileList
+          } catch (error) {
+            this.loading = false
+            return this.$message.error({ content: '获取列表失败' })
+          }
         }
         if (res.code === 500 || res.code === 404) {
           this.loading = false
@@ -663,8 +676,17 @@
           }
         })
       },
-      formatFamilyId(list) {
-        return list.map(item => {
+      formatFamilyId() {
+        console.log(this.familyIds)
+        if (!this.familyIds.familyInfo.map)
+          return [
+            {
+              value: this.familyIds.familyInfo.familyId,
+              label: this.familyIds.familyInfo.remarkName,
+              isLeaf: true
+            }
+          ]
+        return this.familyIds.familyInfo.map(item => {
           return {
             value: item.familyId,
             label: item.remarkName,

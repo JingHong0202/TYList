@@ -1,4 +1,12 @@
-const domainWhiteList = ['http://192.168.61.128:7001'],
+/*
+ * @Author: your name
+ * @Date: 2020-09-15 09:27:16
+ * @LastEditTime: 2020-09-16 10:42:46
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \TYList\config\config.prod.js
+ */
+const domainWhiteList = ['http://120.25.153.46:7001'],
   secret = 'jinghong'
 
 module.exports = appInfo => {

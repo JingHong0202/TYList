@@ -60,7 +60,7 @@
   .auth
       width 100%
       height 100%
-      background url('https://api.302.pub/api/bingtoday/')
+      background url('https://cn.bing.com/th?id=OHR.LifeguardEntrance_ZH-CN7394984988_UHD.jpg&rf=LaDigue_UHD.jpg&pid=hp&w=1920&h=1080&rs=1&c=4')
       background-size cover
       display flex
       justify-content center

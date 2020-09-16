@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2020-09-15 09:27:16
+ * @LastEditTime: 2020-09-15 22:47:42
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \TYList\config\config.local.js
+ */
 const domainWhiteList = ['http://127.0.0.1:7001', 'http://localhost:7001', 'http://localhost:8080'],
   secret = 'jinghong'
 

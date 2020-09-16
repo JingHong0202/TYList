@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2020-09-15 09:27:12
+ * @LastEditTime: 2020-09-16 10:42:13
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \TYList\app\middleware\access.js
+ */
 module.exports = option => {
   return async function (ctx, next) {
     if (
@@ -12,13 +20,13 @@ module.exports = option => {
     if (/(down)|(player)/i.test(ctx.request.url)) {
       let auth = ctx.query
       if (!auth.auth) {
-        this.ctx.status = 401
+        ctx.status = 401
         throw new Error('Unauthorized')
       }
       authorization = auth.auth
     } else {
       if (!ctx.headers.authorization || !ctx.helper.domainCheck(ctx.request.header, option)) {
-        this.ctx.status = 401
+        ctx.status = 401
         throw new Error('Unauthorized')
       }
       authorization = ctx.headers.authorization.replace(/^Bearer\s*/g, '')
@@ -29,7 +37,7 @@ module.exports = option => {
 
       decode = ctx.app.jwt.verify(authorization, reverse)
       if (decode.secret !== ctx.app.config.jwt.secret) {
-        this.ctx.status = 401
+        ctx.status = 401
         throw new Error('Unauthorized')
       }
 
