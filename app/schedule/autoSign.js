@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2020-12-02 15:38:14
+ * @LastEditTime: 2020-12-02 15:38:16
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /TYList/app/schedule/autoSign.js
+ */
 const parser = require('fast-xml-parser')
 module.exports = {
   schedule: {
@@ -55,6 +63,7 @@ module.exports = {
             dataType: 'json'
           }
         )
+        console.log(res)
         if (res.data.errorCode) {
           lottery += `用户${item.uid}第${num + 1}次抽奖失败--${res.data.errorMsg}\n`
         } else {
